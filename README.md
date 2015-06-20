@@ -1,7 +1,7 @@
-ScrumDo API Version 3
-=====================
-
 ![](https://d2jyphd0juzwxu.cloudfront.net/static/v1434549436/scrumdo-v2/img/ScrumDoSignupLogo.png)
+
+API Version 3
+=====================
 
 This document describes the API for ScrumDo.  This is only for data hosted in the 'new' ScrumDo
 that can be accessed from https://app.scrumdo.com - For API access to Classic ScrumDo (the blue
@@ -12,7 +12,7 @@ Authentication
 
 We provide two methods of authenticating against the API.
 
-## OAuth
+### OAuth
 
 If you're creating a web application that you will make available to others, 
 authenticating via OAuth is the only allowed mechanism.  This allows users to 
@@ -26,7 +26,7 @@ Users can manage the access of apps they've grated access to here: https://app.s
 A Django based example showing how to authenticate can be found here:
 https://github.com/ScrumDoLLC/ScrumDoAPIv3/tree/master/examples/django
 
-## HTTP Basic
+### HTTP Basic
 If you're creating a script that will **only be used personally or internally 
 within your company**, you may use HTTP Basic authentication with your username 
 and password to speed development.
@@ -34,13 +34,14 @@ and password to speed development.
 A Python based example showing this can be found here:
 https://github.com/ScrumDoLLC/ScrumDoAPIV3/tree/master/examples/python
 
-## In Browser
+### In Browser
 
 For debugging purposes, if you make requests from your browser and are logged in, 
-you session info will be carried over.  Example:
+your session info will be carried over.  Example:
 https://app.scrumdo.com/api/v3/organizations/
 
-We do not respond with CORS headers, so this is not a good way to authenticate for any real use.
+We do not respond with CORS headers, and we do expect a CSRF token on PUT, POST or DELETE 
+so this is not a good way to authenticate for any real use.
 
 
 REST
@@ -88,9 +89,10 @@ examples for the format of the data expected.
 Rate Throttling
 ---------------
 
-GET requests - We allow up to 150 requests per 5 seconds.
+GET requests - We allow up to 50 requests per 5 seconds.
 
-POST or PUT requests - We allow up to 50 requests per 5 seconds.
+POST or PUT requests - We allow up to 10 requests per 5 seconds.
+
 
 Paged Results
 -------------
@@ -128,11 +130,7 @@ love to include it, feel free to send a pull request via GitHub our way.
 Older versions of the API
 -------------------------
 
-*Version 1* of our API should now be considered deprecated.  We will do our best to make sure it remains 
-functional for at least the next 6 months (until 8/1/2013) but have no plans on maintaining it after that.  
-
-Information on Version 1 of the API can be found here: http://www.scrumdo.com/developer/
-
+### Version 2
 
 *Version 2* of our API should now be considered deprecated.  We will do our best to make sure it remains 
 functional for at least the next 6 months (until 12/19/2015) but have no plans on maintaining it after that.  
@@ -140,3 +138,28 @@ functional for at least the next 6 months (until 12/19/2015) but have no plans o
 Information on Version 2 of the API can be found here: http://www.scrumdo.com/developer/
 https://www.scrumdo.com/api/v2/docs
 
+
+Version 2 and Version 3 are very similar in structure, but there are some major differences to be aware of.
+
+*Stories:*
+
+* In general on the site we're calling them Cards instead of Stories now, but the API urls still refers to stories
+* Summary, Detail, and Custom fields are all HTML formatted instead of Markdown, the old *_html fields are no longer present since they would have been redundant.
+* No more category field, labels have replaced them
+* No more card types, labels have replaced them
+* No more status field, the cell location replaces it, see cell_id
+* In addition to rank, there is now epic_rank which defines the order of the card within an epic
+
+*Planning Poker:*
+
+Planning poker is completely different and relies on a mix of API calls and collaboration on a 
+real time channel.  Contact us if you need access here.
+
+
+
+### Version 1
+
+*Version 1* of our API should now be considered deprecated.  We will do our best to make sure it remains 
+functional for at least the next 6 months (until 8/1/2013) but have no plans on maintaining it after that.  
+
+Information on Version 1 of the API can be found here: http://www.scrumdo.com/developer/
