@@ -5,7 +5,7 @@ DEBUG = True
 
 
 
-# First, you need to go to http://beta.scrumdo.com/api/v2/oauth/apps register your new app, 
+# First, you need to go to http://app.scrumdo.com/api/v3/oauth/apps register your new app, 
 # and fill in the consumer keys here.
 CONSUMER_KEY = os.environ.get("CONSUMER_KEY","")
 CONSUMER_SECRET= os.environ.get("CONSUMER_SECRET", "")

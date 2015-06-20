@@ -1,6 +1,8 @@
 ScrumDo API Version 3
 =====================
 
+![](https://d2jyphd0juzwxu.cloudfront.net/static/v1434549436/scrumdo-v2/img/ScrumDoSignupLogo.png)
+
 This document describes the API for ScrumDo.  This is only for data hosted in the 'new' ScrumDo
 that can be accessed from https://app.scrumdo.com - For API access to Classic ScrumDo (the blue
 themed version) please see https://github.com/ScrumDoLLC/ScrumDoAPIV2
@@ -23,9 +25,6 @@ Users can manage the access of apps they've grated access to here: https://app.s
 
 A Django based example showing how to authenticate can be found here:
 https://github.com/ScrumDoLLC/ScrumDoAPIv3/tree/master/examples/django
-
-You can see that app running here:
-http://scrumdo-api-example-v3.herokuapp.com/
 
 ## HTTP Basic
 If you're creating a script that will **only be used personally or internally 
