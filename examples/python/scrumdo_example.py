@@ -3,14 +3,14 @@ from colorama import init, Fore, Back, Style
 from time import sleep
 import local_settings as settings
 import json
-# We're using slumber (http://slumber.in/), a python library that makes RESTfull calls amazingly easy,  to access the API
+# We're using slumber (http://slumber.in/), a python library that makes RESTfull calls amazingly easy to access the API
 
 def main():
 	init()
-	base_url = "%s/api/v2/" % settings.scrumdo_host
+	base_url = "%s/api/v3/" % settings.scrumdo_host
 	api = slumber.API(base_url, auth=(settings.scrumdo_username, settings.scrumdo_password))
 
-	# read_examples(api)
+	read_examples(api)
 	read_epics_example(api)
 	
 	if settings.write_example:
@@ -50,7 +50,7 @@ def write_examples(api):
 		iteration_id = iteration['id']
 		print "Created iteration id: %d" % iteration_id
 
-		# We could also retrieve it now.
+		# We could also retrieve it now, but this is redundant.
 		print json.dumps(api_project.iterations(iteration_id).get(), sort_keys=True, indent=4)
 
 		# We could tell the user about it.
@@ -84,7 +84,7 @@ def write_examples(api):
 		# assignees = "mhughes, ajay, mhughes109"
 
 		# Create a new story
-		story = api_iteration.stories.post(	{ "rank":1, "category":"", "detail":"Here is my story detail, in markdown format.", "status":10, 
+		story = api_iteration.stories.post(	{ "rank":1, "category":"", "detail":"Here is my story detail, in html format.",  
 											  "summary":"As a user...", "points":"20", "extra_1":"The first custom field", "extra_2":None, 
 											  "extra_3":None,"epic_id":None,"assignees":assignees, "tags":"tag1, tag2"} )
 		
@@ -92,7 +92,7 @@ def write_examples(api):
 		# Note: story['extra_1'] corresponds to your first custom field, extra_2 to the next...
 
 
-		story['summary'] = 'Modified Story Summary.  \n\n# Markdown Formatted'
+		story['summary'] = 'Modified Story Summary.  \n\n<b>html</b> Formatted'
 		api_iteration.stories( story['id'] ).put( story )
 		
 
@@ -183,7 +183,7 @@ def read_examples(api):
 # This function is a dumb way to make sure we don't go over the throttle limit.
 def check_throttle(requests):	
 	requests += 1
-	if requests >= 49: 
+	if requests >= 149: 
 		sleep(5) # Add in a delay when we get close the our max # of requests per 5 seconds.
 		return 0
 	return requests

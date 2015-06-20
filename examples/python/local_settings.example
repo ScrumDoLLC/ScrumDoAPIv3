@@ -1,6 +1,7 @@
 scrumdo_username="your username"
 scrumdo_password="your password"
-scrumdo_host="https://www.scrumdo.com"
+scrumdo_host="https://app.scrumdo.com"
+organization_slug="Your organization slug"
 
 # Do you want to run the examples that write data?
 write_example=False
