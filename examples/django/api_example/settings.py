@@ -11,7 +11,7 @@ CONSUMER_KEY = os.environ.get("CONSUMER_KEY","")
 CONSUMER_SECRET= os.environ.get("CONSUMER_SECRET", "")
 
 # Then, set the hostname of THIS server
-HOSTNAME=os.environ.get("HOSTNAME","http://localhost:8000")
+HOSTNAME=os.environ.get("HOSTNAME","http://localhost:8008")
 
 # And the hostname of the ScrumDo server you want to contact
 SCRUMDO_HOSTNAME=os.environ.get("SCRUMDO_HOSTNAME", "https://www.scrumdo.com/")

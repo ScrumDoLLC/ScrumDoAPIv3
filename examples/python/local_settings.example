@@ -1,10 +1,22 @@
-scrumdo_username="your username"
-scrumdo_password="your password"
-scrumdo_host="https://app.scrumdo.com"
-organization_slug="Your organization slug"
+# Global config for all examples
+scrumdo_username = "USERNAME"
+scrumdo_password = "PASSWORD"
+scrumdo_host = "https://app.scrumdo.com"
+organization_slug = "org"
 
-# Do you want to run the examples that write data?
-write_example=False
-# If so, what project?
-write_organization_slug=""
-write_project_slug=""
+
+# For the scrumdo_example.py script:
+project_slug = "proj"
+write_example = True  # Do you want to run the examples that write data?
+write_organization_slug = "comp3"  # If so, what org and project project?
+write_project_slug = "training345"
+
+
+
+# For the emc_trello_import.py script
+import_json = "/path/to/import.json"
+iteration_name = "Imported Iteration"
+import_project_slug = "my-test-project"
+import_user_mappings = {
+    'external-user-id': 'scrumdo-username'
+}
