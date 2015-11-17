@@ -1,6 +1,29 @@
+Example Scripts
+===============
+
+In this directory are some example scripts to access the ScrumDo API.
+
+local_settings.example  
+Example configuration file for the other scripts.
+
+emc_trello_import.py  	
+Sample script for importing a customer's data.	
+
+export_attachments_comments.py  
+Example script to export comments and attachments.
+
+import_util.py	  
+Utility methods for importing a customer's data.
+
+scrumdo_example.py  
+Example of some of the API calls.
+
+story_queue_example.py
+Shows how to manually add a card to the ScrumDo story queue.
+
 This is a simple python script capable of accessing the ScrumDo API via HTTP Basic authentication.
 
-It is released under the MIT License and is suitable as either a reference or a starting point for 
+These are released under the MIT License and are suitable as either a reference or a starting point for 
 your applications.
 
 Usage
@@ -20,7 +43,7 @@ Usage
 
 4. Edit local_settings.py to include your authentication information
 
-5. Run the script
+5. Run the scripts
 
     python scrumdo_example.py
 
