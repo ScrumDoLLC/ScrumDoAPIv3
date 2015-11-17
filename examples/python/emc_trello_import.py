@@ -67,25 +67,9 @@ def main():
     for id, username in settings.import_user_mappings.iteritems():
         importer.add_assignee_mapping(id, username)
 
-    # A Trello list is like one of our cells
-    # Let's set up some mappings first in case we don't match 100%
-    list_name_map = {  # A mapping from trello list name to scrumdo cell label
-
-    }
-    for import_list in import_data['lists']:
-        name = list_name_map.get(import_list['name'], import_list['name'])
-        id = import_list['id']
-        importer.set_cell_mapping(id, 'Everything Else/' + name)
-
-    # See docs for _card_list_id for what we're doing here...
     for label in import_data['labels']:
         importer.add_label(label['id'], label['name'], TRELLO_COLORS[label['color']])
-        if label['id'] in magic_labels:
-            for import_list in import_data['lists']:
-                id = import_list['id'] + label['id']
-                name = list_name_map.get(import_list['name'], import_list['name'])
-                labelname = label['name']
-                importer.set_cell_mapping(id, "%s/%s" % (labelname, name))
+
 
 
 
@@ -116,10 +100,14 @@ def main():
            "due_date": None if import_card['due'] is None else import_card['due'][:10]
         }
         importer.add_card(external_card_id, properties)
-        external_cell_id = _card_list_id(import_card)
-        importer.set_cell(external_card_id, external_cell_id)
+        # external_cell_id = _card_list_id(import_card)
+        # importer.set_cell(external_card_id, external_cell_id)
         importer.set_labels(external_card_id, import_card['idLabels'])
         importer.set_assignees(external_card_id, import_card['idMembers'])
+        for attachment in import_card['attachments']:
+            name = attachment['name']
+            url = attachment['url']
+            importer.add_attachment_by_url(external_card_id, url, name)
 
     # Trello has these things called checklists which are separate from the card data, lets
     # jam them into the extra_1 field!  We'll format them like so:
@@ -129,12 +117,15 @@ def main():
     for import_checklist in import_data['checklists']:
         external_card_id = import_checklist['idCard']
         items = import_checklist['checkItems']
-
-        def _state(item):
-            return '[X] ' if item['state'] == 'complete' else '[ ] '
-
-        value = "\n".join([_state(item) + item['name'] for item in items])
-        importer.set_card_property(external_card_id, 'extra_1', value)
+        name = import_checklist['name']
+        if name == 'Tasks':
+            for task in items:
+                importer.add_task(external_card_id, task['name'])
+        else:
+            def _state(item):
+                return '[X] ' if item['state'] == 'complete' else '[ ] '
+            value = "\n".join([_state(item) + item['name'] for item in items])
+            importer.set_card_property(external_card_id, 'extra_1', value)
 
     # Now, add comments in
     for import_action in import_data['actions']:
@@ -145,7 +136,7 @@ def main():
             date = import_action['date']
             importer.add_comment(external_card_id, date, text, author)
 
-    importer.create_iteration('example')
+    importer.create_iteration('backlog')
     importer.import_all()
 
 

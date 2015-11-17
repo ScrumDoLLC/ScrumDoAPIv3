@@ -26,11 +26,14 @@ class ScrumDoImport:
         self.label_mapping = {}  # Map from external label id to scrumdo label id
         self.cell_mapping = {}  # Map from external cell/column/status to scrumdo cell id
         self.board_cells = None
+        self.scrumdo_host = scrumdo_host
+        self.project_slug = import_project_slug
 
         # Data about cards we're going to import
         self.assignees = defaultdict(list)   # assignees[external_id] = [external_assignee, external_assignee2, ...]
         self.attachments = defaultdict(list)   # attachments[external_id] = [filename, filename2, filename3]
         self.comments = defaultdict(list)  # comments[external_id] = [{author, comment, date}, {}, ...  ]
+        self.tasks = defaultdict(list)
 
         self.card_properties = {}
 
@@ -144,11 +147,16 @@ class ScrumDoImport:
         if not os.path.exists("temp/attachments"):
             os.makedirs("temp/attachments")
         df = urllib2.urlopen(url)
-        filename = u"temp/attachments/{filename}".format(filename=filename)
+
+        filename = u"temp/attachments/{filename}".format(filename=filename.replace('/', "_"))
+
         with open(filename, 'wb') as output:
             output.write(df.read())
             output.close()
             self.attachments[external_card_id].append(filename)
+
+    def add_task(self, external_card_id, task_summary):
+        self.tasks[external_card_id].append(task_summary)
 
     def add_comment(self, external_card_id, comment_date, comment_text, comment_author):
         """
@@ -187,3 +195,28 @@ class ScrumDoImport:
 
         card = self.api_iteration.stories.post(p)
         card_id = card['id']
+        for task in self.tasks[external_id]:
+            self.api_project.stories(card_id).tasks.post({'summary':task})
+
+
+        # for attachment in self.attachments[external_id]:
+        #     url = "%s/uploader/add-dropzone/%s/%d/" % (self.scrumdo_host, self.project_slug, card_id)
+        #     try:
+        #         requests.post(url, files={'attachment_file': open(attachment,'rb')})
+        #     except:
+        #         logger.warn('Could not upload %s' % attachment)
+
+
+
+        for comment in self.comments[external_id]:
+            data = {
+                'date': comment['date'],
+                'comment': comment['comment']
+            }
+            if comment['author'] in self.assignee_mapping:
+                data['author'] = self.assignee_mapping[comment['author']]
+
+            self.api.comments.story(card_id).post(data)
+
+
+
