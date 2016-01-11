@@ -1,4 +1,4 @@
-![](https://d2jyphd0juzwxu.cloudfront.net/static/v1434549436/scrumdo-v2/img/ScrumDoSignupLogo.png)
+![](https://d1949u65ypatvu.cloudfront.net/static/v1434549436/img/ScrumDoSignupLogo.png)
 
 API Version 3
 =====================
