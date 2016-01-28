@@ -103,6 +103,7 @@ class ScrumDoImport:
         if self.api_iteration is not None:
             raise Exception('ScrumDoImport can only import one iteration per instance.')
         iteration = self.api_project.iterations.post({'name': name})
+        logger.info(iteration['url'])
         iteration_id = iteration['id']
         self.api_iteration = self.api_project.iterations(iteration_id)
 
@@ -155,8 +156,8 @@ class ScrumDoImport:
             output.close()
             self.attachments[external_card_id].append(filename)
 
-    def add_task(self, external_card_id, task_summary):
-        self.tasks[external_card_id].append(task_summary)
+    def add_task(self, external_card_id, task_summary, assignee=None, tags=None, estimated_minutes=0, status=1):
+        self.tasks[external_card_id].append((task_summary, assignee, tags, estimated_minutes, status))
 
     def add_comment(self, external_card_id, comment_date, comment_text, comment_author):
         """
@@ -176,10 +177,16 @@ class ScrumDoImport:
         """After you have everything set up for the import, call this to actually write the data out to ScrumDo"""
         rank = 20000
         for external_id, properties in self.card_properties.iteritems():
-            self._import_card(external_id, properties, rank)
+            try:
+                self._import_card(external_id, properties, rank)
+            except slumber.exceptions.HttpServerError as e:
+                logger.error("Could not import %s" % external_id)
+                logger.error(e.message)
+                logger.error(e.content)
+                logger.error(properties)
 
     def _lookup_assignee(self, external_uid):
-        a = self.assignees.get(external_uid, None)
+        a = self.assignee_mapping.get(external_uid, None)
         # if a is None:
 
         return a
@@ -192,11 +199,21 @@ class ScrumDoImport:
         assignees = [self._lookup_assignee(uid) for uid in self.assignees[external_id]]
         assignees = [assignee for assignee in assignees if assignee is not None]
         p['assignees'] = ", ".join(assignees)
+        logger.debug(",".join(self.assignees[external_id]))
+        logger.debug(p['assignees'])
 
         card = self.api_iteration.stories.post(p)
         card_id = card['id']
         for task in self.tasks[external_id]:
-            self.api_project.stories(card_id).tasks.post({'summary':task})
+            assignee = None
+            if task[1] is not None:
+                assignee = self._lookup_assignee(task[1])
+
+            self.api_project.stories(card_id).tasks.post({'summary':task[0],
+                                                          'tags':task[2],
+                                                          'assignee': assignee,
+                                                          'status': task[4],
+                                                          'estimated_minutes':task[3] })
 
 
         # for attachment in self.attachments[external_id]:
@@ -217,6 +234,3 @@ class ScrumDoImport:
                 data['author'] = self.assignee_mapping[comment['author']]
 
             self.api.comments.story(card_id).post(data)
-
-
-

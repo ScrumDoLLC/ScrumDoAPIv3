@@ -9,7 +9,7 @@ import os
 
 def main():
 	init()
-	base_url = "%s/api/v2/" % settings.scrumdo_host
+	base_url = "%s/api/v3/" % settings.scrumdo_host
 	api = slumber.API(base_url, auth=(settings.scrumdo_username, settings.scrumdo_password))
 
 	for project in api.organizations(settings.organization_slug).projects.get():
@@ -22,6 +22,11 @@ def exportProject(project, api):
 	filename = 'output/{slug}/project.json'.format(slug=project['slug'])
 	with open(filename, 'w') as output:
 		output.write( json.dumps(project, indent=2) )
+
+	epics = api.organizations(settings.organization_slug).projects.epics.get()
+	filename = 'output/{slug}/epics.json'.format(slug=project['slug'])
+	with open(filename, 'w') as output:
+		output.write(json.dumps(epics, indent=2))
 
 	for iteration in api.organizations(settings.organization_slug).projects(project['slug']).iterations.get():
 		exportIteration(project, iteration, api)
