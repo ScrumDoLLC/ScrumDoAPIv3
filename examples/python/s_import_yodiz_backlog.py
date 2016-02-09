@@ -65,45 +65,17 @@ import logging
 from import_util import ScrumDoImport
 
 POINT_MAP = {
- 'XS': 1,
- 'S': 5,
- 'M': 10,
- 'L': 15,
- 'XL': 25,
- 'XXL': 25,
+ 'XS': 'XS',
+ 'S': 'S',
+ 'M': 'M',
+ 'L': 'L',
+ 'XL': 'XL',
+ 'XXL': 'XL',
  '': '?'
 }
 
 epics = {
-    'Purchase Offer System':'33466',
-    'Mobile App (Phone)':'33467',
-    'Sales Queue 1.1':'33468',
-    'Freight Management':'33469',
-    'Price Prediction':'33470',
-    'Invoice System':'33471',
-    'Sales Queue 2.0':'33472',
-    'General DCC pages':'33473',
-    'Telemarketing System':'33474',
-    'General DCC Pages Needing .NET':'33475',
-    'Quote System':'33476',
-    'Marketing':'33477',
-    'Contact/Customer Section Updates':'33478',
-    'Employee List and Settings':'33479',
-    'Trigger Based Marketing (Alerts/Loop)':'33480',
-    'Reports & Metrics':'33481',
-    'Purchasing Queue':'33482',
-    'Side Projects':'33483',
-    'Brokered Shipping App':'33484',
-    'Warehouse Management App':'33485',
-    'Engineering Questions':'33486',
-    'Internal Listing Process':'33487',
-    'Sigma Surplus (Ebay)':'33488',
-    'Document Library':'33489',
-    'Customer Registration System':'33490',
-    'Site Visit Planning (Acquisitions Dept)':'33491',
-    'Shop Workorder / Tracking':'33492',
-    'User List Chrome Extension':'33493',
-    'CtrlCenter Equipment Pages':'33494'
+    'desc': 'map'
 }
 
 
@@ -160,7 +132,7 @@ def import_iteration(iteration):
     importer.import_all()
 
 def import_row(row, importer):
-    if row[3] in ("userstory", "issue"):
+    if row[3] == "userstory":
         import_card(row, importer)
     elif row[3] == "task":
         import_task(row, importer)

@@ -63,63 +63,23 @@ import logging
 from import_util import ScrumDoImport
 
 POINT_MAP = {
- 'XS': 1,
- 'S': 5,
- 'M': 10,
- 'L': 15,
- 'XL': 25,
- 'XXL': 25,
+ 'XS': 'XS',
+ 'S': 'S',
+ 'M': 'M',
+ 'L': 'L',
+ 'XL': 'XL',
+ 'XXL': 'XL',
  '': '?'
 }
 
 epics = {
-    'Purchase Offer System':'33466',
-    'Mobile App (Phone)':'33467',
-    'Sales Queue 1.1':'33468',
-    'Freight Management':'33469',
-    'Price Prediction':'33470',
-    'Invoice System':'33471',
-    'Sales Queue 2.0':'33472',
-    'General DCC pages':'33473',
-    'Telemarketing System':'33474',
-    'General DCC Pages Needing .NET':'33475',
-    'Quote System':'33476',
-    'Marketing':'33477',
-    'Contact/Customer Section Updates':'33478',
-    'Employee List and Settings':'33479',
-    'Trigger Based Marketing (Alerts/Loop)':'33480',
-    'Reports & Metrics':'33481',
-    'Purchasing Queue':'33482',
-    'Side Projects':'33483',
-    'Brokered Shipping App':'33484',
-    'Warehouse Management App':'33485',
-    'Engineering Questions':'33486',
-    'Internal Listing Process':'33487',
-    'Sigma Surplus (Ebay)':'33488',
-    'Document Library':'33489',
-    'Customer Registration System':'33490',
-    'Site Visit Planning (Acquisitions Dept)':'33491',
-    'Shop Workorder / Tracking':'33492',
-    'User List Chrome Extension':'33493',
-    'CtrlCenter Equipment Pages':'33494'
+    'desc': 'map'
 }
+
 
 def main():
     init()
-    iterations = (("G", "input/g.csv"),
-                  ("Frodo", "input/frodo.csv"),
-                  ("Ewok", "input/ewok.csv"),
-                  ("Dexter Jettster", "input/de.csv"),
-                  ("Chewbacca", "input/c.csv"),
-                  ("Boss Nass", "input/b.csv"),
-                  ("Ackbar", "input/ackbar.csv"),
-                  ("Han Solo", "input/han_solo.csv"),
-                  ("Harry Potter", "input/harry_potter.csv"),
-                  ("Boba Fett", "input/boba_fett.csv"),
-                  ("Darth Vader", "input/d.csv"),
-                  ("Hellboy", "input/hellboy.csv"),
-                  ("Old Man Sprint", "input/old_man.csv"),
-                  ("PO System Sprint 3", "input/po_system.csv"))
+    iterations = (("G", "input/g.csv"),)
 
 
     for iteration in iterations:
@@ -143,8 +103,11 @@ def import_iteration(iteration):
     importer.add_label("issue", "Bug", 0xff0000)
     importer.add_label("userstory", "User Story", 0x00ff00)
 
+
+    importer.set_cell_mapping("Will Not Fix", "Work Queue")
     importer.set_cell_mapping("Completed", "Ready for Release")
     importer.set_cell_mapping("Done", "Released")
+    importer.set_cell_mapping("Closed", "Released")
     importer.set_cell_mapping("In Testing", "QA")
     importer.set_cell_mapping("Blocked", "Work Queue")
     importer.set_cell_mapping("Planned", "Work Queue")
@@ -154,35 +117,57 @@ def import_iteration(iteration):
     importer.set_cell_mapping("In Progress", "Developing")
     importer.set_cell_mapping("Accepted", "Ready for Release")
     importer.set_cell_mapping("Rejected", "Work Queue")
+    importer.set_cell_mapping("Ignored", "Work Queue")
+    importer.set_cell_mapping("Reopened", "Work Queue")
+    importer.set_cell_mapping("Pending", "Work Queue")
 
 
+    # First grab the user stories for that iteration
     with open(iteration_file, 'rb') as csvfile:
         logger.info("Reading %s" % iteration_file)
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         for row in reader:
             import_row(row, importer)
-
+    # Now, grab bugs for that iteration
+    with open("input/bugs.csv", 'rb') as csvfile:
+        logger.info("Reading bugs.csv")
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        for row in reader:
+            if row[13] == iteration_name:
+                import_bug_row(row, importer)
 
     importer.create_iteration(iteration_name)
     importer.import_all()
 
+def import_bug_row(row, importer):
+
+    if row[25] == '':
+        # No user story, so import it as a card
+        import_card(row, importer, tags_column=22, release_info=False)
+    else:
+        logger.info("AS TASK")
+        # If it's tied to a card, import it as a task on that card
+        import_task(row, importer, story_column=25, tags_column=22)
+
+
 def import_row(row, importer):
-    if row[3] in ("userstory", "issue"):
+    if row[3] == "userstory":
         import_card(row, importer)
     elif row[3] == "task":
         import_task(row, importer)
     else:
         logger.error("Don't know what to do with " + row[3])
 
-def import_task(row, importer):
+def import_task(row, importer, story_column=28, tags_column=24):
     logger.info("  Importing {id}".format(id=row[1]))
     try:
         minutes = int(row[6]) * 60
     except:
         minutes = 0
-    importer.add_task(row[28], row[2], row[12], row[24], minutes, 10 if row[9] == 'Done' else 1)
+        #external_card_id, task_summary, assignee=None, tags=None, estimated_minutes=0, status=1
+    importer.add_task(row[story_column], row[2], row[12], row[tags_column], minutes, 10 if row[9] == 'Done' else 1)
 
-def import_card(row, importer):
+def import_card(row, importer, tags_column=23, release_info=True):
     logger.info("  Importing {id}".format(id=row[1]))
     try:
         rank = int(row[0]) * 1000
@@ -192,12 +177,15 @@ def import_card(row, importer):
     tags = []
 
     # Converting some columns to tags:
-    for col in (1,14,15,18,19,20,24):
+    for col in (1,14,15,18,19,20,tags_column):
         t = row[col]
-        if len(t) > 0:
+        if len(t) > 0 and len(t) <= 32:
             tags.append(t)
 
-    e = ScrumDoImport.to_html(row[26] + "\n" + row[27] + "\n" + row[28])
+    if release_info:
+        e = ScrumDoImport.to_html(row[26] + "\n" + row[27] + "\n" + row[28])
+    else:
+        e = ''
 
     try:
         minutes = int(row[6]) * 60
