@@ -4,13 +4,15 @@ scrumdo_password = "PASSWORD"
 scrumdo_host = "https://app.scrumdo.com"
 organization_slug = "org"
 
+# For the set_default.py script:
+project_slug = 'project'
+
 
 # For the scrumdo_example.py script:
 project_slug = "proj"
 write_example = True  # Do you want to run the examples that write data?
 write_organization_slug = "comp3"  # If so, what org and project project?
 write_project_slug = "training345"
-
 
 
 # For the emc_trello_import.py script
