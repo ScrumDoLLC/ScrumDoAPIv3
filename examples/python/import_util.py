@@ -28,6 +28,7 @@ class ScrumDoImport:
         self.board_cells = None
         self.scrumdo_host = scrumdo_host
         self.project_slug = import_project_slug
+        self.organization_slug = organization_slug
 
         # Data about cards we're going to import
         self.assignees = defaultdict(list)   # assignees[external_id] = [external_assignee, external_assignee2, ...]
@@ -43,13 +44,21 @@ class ScrumDoImport:
 
         # On my local dev-server, keep alive doesn't work
         session = requests.session()
-        session.keep_alive = False
 
         self.api = slumber.API(base_url, auth=(scrumdo_username, scrumdo_password), session=session)
 
         # Project API helper:
         self.api_project = self.api.organizations(organization_slug).projects(import_project_slug)
         self.project = self.api_project.get()
+
+        self.session = requests.Session()
+        self.session.post("https://app.scrumdo.com/account/login/",{
+            'username': scrumdo_username,
+            'password': scrumdo_password
+        })
+
+
+
 
     @staticmethod
     def to_html(text):
@@ -147,7 +156,11 @@ class ScrumDoImport:
     def add_attachment_by_url(self, external_card_id, url, filename):
         if not os.path.exists("temp/attachments"):
             os.makedirs("temp/attachments")
-        df = urllib2.urlopen(url)
+
+        try:
+            df = urllib2.urlopen(url)
+        except:
+            return
 
         filename = u"temp/attachments/{filename}".format(filename=filename.replace('/', "_"))
 
@@ -216,12 +229,16 @@ class ScrumDoImport:
                                                           'estimated_minutes':task[3] })
 
 
-        # for attachment in self.attachments[external_id]:
-        #     url = "%s/uploader/add-dropzone/%s/%d/" % (self.scrumdo_host, self.project_slug, card_id)
-        #     try:
-        #         requests.post(url, files={'attachment_file': open(attachment,'rb')})
-        #     except:
-        #         logger.warn('Could not upload %s' % attachment)
+        for attachment in self.attachments[external_id]:
+
+            url = "%s/uploader/add-dropzone/%s/%d/" % (self.scrumdo_host, self.project_slug, card_id)
+            # url = "%s/api/v3/organizations/%s/projects/%s/stories/%d/attachments/" % (self.scrumdo_host, self.organization_slug, self.project_slug, card_id)
+
+            files = {'attachment_file': (attachment, open(attachment, 'rb'), 'binary/octet-stream', {'Expires': '0'})}
+            try:
+                self.session.post(url, files=files)
+            except:
+                logger.warn('Could not upload %s' % attachment)
 
 
 
