@@ -10,26 +10,10 @@ themed version) please see https://github.com/ScrumDoLLC/ScrumDoAPIV2
 Authentication
 --------------
 
-We provide two methods of authenticating against the API.
-
-### OAuth
-
-If you're creating a web application that you will make available to others, 
-authenticating via OAuth is the only allowed mechanism.  This allows users to 
-authenticate wtihout giving out their username and password to third parties.  
-It also allows users to revoke access to applications.
-
-To register a new OAuth consumer app, visit https://app.scrumdo.com/api/v3/oauth/apps
-
-Users can manage the access of apps they've grated access to here: https://app.scrumdo.com/account/#/api
-
-A Django based example showing how to authenticate can be found here:
-https://github.com/ScrumDoLLC/ScrumDoAPIv3/tree/master/examples/django
-
 ### HTTP Basic
 If you're creating a script that will **only be used personally or internally 
 within your company**, you may use HTTP Basic authentication with your username 
-and password to speed development.
+and password to speed development. If you plan on making somethign for public consumption, please contact us about OAuth support.
 
 A Python based example showing this can be found here:
 https://github.com/ScrumDoLLC/ScrumDoAPIV3/tree/master/examples/python
