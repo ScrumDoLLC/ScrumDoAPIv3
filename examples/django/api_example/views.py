@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 
-request_token_url = "%sapi/v3/oauth/request_token/" % settings.SCRUMDO_HOSTNAME
-access_token_url = "%sapi/v3/oauth/access_token/" % settings.SCRUMDO_HOSTNAME
-authorize_url = "%sapi/v3/oauth/authorize/" % settings.SCRUMDO_HOSTNAME
+request_token_url = "%sopenapi/v3/oauth/request_token/" % settings.SCRUMDO_HOSTNAME
+access_token_url = "%sopenapi/v3/oauth/access_token/" % settings.SCRUMDO_HOSTNAME
+authorize_url = "%sopenapi/v3/oauth/authorize/" % settings.SCRUMDO_HOSTNAME
 
 callback_url = "%s/oauth_callback" % settings.HOSTNAME
 
@@ -80,8 +80,8 @@ def oauth_callback(request):
 def authenticated_home(request):
     try:
         access_token = request.session.get("access_token")
-        logger.info("Making request to %s with %s" % (("%s/api/v3/" % settings.SCRUMDO_HOSTNAME),access_token) )
-        api = slumber.API("%s/api/v3/" % settings.SCRUMDO_HOSTNAME)
+        logger.info("Making request to %s with %s" % (("%s/openapi/v3/" % settings.SCRUMDO_HOSTNAME),access_token) )
+        api = slumber.API("%s/openapi/v3/" % settings.SCRUMDO_HOSTNAME)
         organizations = api.organizations.get(access_token=access_token)
     except slumber.exceptions.HttpServerError as e:
         print e
@@ -95,7 +95,7 @@ def authenticated_home(request):
 # We could also show a list of projects.
 def project_list(request, organization_slug):
     access_token = request.session.get("access_token")
-    api = slumber.API("%s/api/v3/" % settings.SCRUMDO_HOSTNAME)
+    api = slumber.API("%s/openapi/v3/" % settings.SCRUMDO_HOSTNAME)
     projects = api.organizations(organization_slug).projects.get(access_token=access_token)
     return render_to_response("project_list.html", {'projects': projects}, context_instance = RequestContext(request) )
 

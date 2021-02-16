@@ -16,10 +16,10 @@ import json
 
 def main():
     init()
-    base_url = "%s/api/v3/" % settings.scrumdo_host
+    base_url = "%s/openapi/v3/" % settings.scrumdo_host
     api = slumber.API(base_url, auth=(settings.scrumdo_username, settings.scrumdo_password))
 
-    base_url = "%s/api/v3/" % settings.backup_scrumdo_host
+    base_url = "%s/openapi/v3/" % settings.backup_scrumdo_host
     api_backup = slumber.API(base_url, auth=(settings.scrumdo_username, settings.scrumdo_password))
 
     fix_all_labels(api, api_backup)

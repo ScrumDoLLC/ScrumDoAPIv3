@@ -7,15 +7,15 @@ import json
 
 def main():
 	init()
-	base_url = "%s/api/v3/" % settings.scrumdo_host
+	base_url = "%s/openapi/v3/" % settings.scrumdo_host
 	api = slumber.API(base_url, auth=(settings.scrumdo_username, settings.scrumdo_password))
 
 	read_examples(api)
 	read_epics_example(api)
-	
+
 	if settings.write_example:
 		write_examples(api)
-	
+
 
 
 def write_examples(api):
@@ -32,20 +32,20 @@ def write_examples(api):
 
 		# Cache this for less wordy slumber API calls
 		api_project = api.organizations(settings.write_organization_slug).projects(settings.write_project_slug)
-		# Now, 
-		#     api_project.iterations.get() 
+		# Now,
+		#     api_project.iterations.get()
 		# is equivalent to
-		#     api.organizations(settings.write_organization_slug).projects(settings.write_project_slug).iterations.get() 
+		#     api.organizations(settings.write_organization_slug).projects(settings.write_project_slug).iterations.get()
 
 
-		
+
 		# Next, lets' create a new iteration.
 		iteration = api_project.iterations.post({'name':'API Test Iteration', 'start_date':'2012-11-01', 'end_date':'2012-11-15'})
 		# name is the only required field, so any of these would have worked too:
 		# iteration = api_project.iterations.post({'name':'API Test iteration'})
 		# iteration = api_project.iterations.post({'name':'API Test Iteration', 'start_date':None})
 		# iteration = api_project.iterations.post({'name':'API Test Iteration','locked':False, 'include_in_velocity':False,'detail':''})
-		
+
 		# When creating an object, it's returned in the body, so you can access it
 		iteration_id = iteration['id']
 		print "Created iteration id: %d" % iteration_id
@@ -55,11 +55,11 @@ def write_examples(api):
 
 		# We could tell the user about it.
 		print "Go here to see your iteration: %s%s" % (settings.scrumdo_host, iteration['url'] )
-		
+
 		# After we have an iteration, we could modify it.
 		iteration['name'] = "Modified API iteration name"
 		api_project.iterations(iteration_id).put( iteration )
-		
+
 		# Note: Not all fields are writable.  To make the read & write API's more compatible, we
 		# ignore extra fields.  This has the benefit of allowing you to PUT back the result you get.
 		# But it can lead to some confusion if you expected those fields to update.
@@ -84,17 +84,17 @@ def write_examples(api):
 		# assignees = "mhughes, ajay, mhughes109"
 
 		# Create a new story
-		story = api_iteration.stories.post(	{ "rank":1, "category":"", "detail":"Here is my story detail, in html format.",  
-											  "summary":"As a user...", "points":"20", "extra_1":"The first custom field", "extra_2":None, 
+		story = api_iteration.stories.post(	{ "rank":1, "category":"", "detail":"Here is my story detail, in html format.",
+											  "summary":"As a user...", "points":"20", "extra_1":"The first custom field", "extra_2":None,
 											  "extra_3":None,"epic_id":None,"assignees":assignees, "tags":"tag1, tag2"} )
-		
+
 		print json.dumps(story, indent=4, sort_keys=True)
 		# Note: story['extra_1'] corresponds to your first custom field, extra_2 to the next...
 
 
 		story['summary'] = 'Modified Story Summary.  \n\n<b>html</b> Formatted'
 		api_iteration.stories( story['id'] ).put( story )
-		
+
 
 		# To delete a story...
 		# api_iteration.stories( story['id'] ).delete()
@@ -117,7 +117,7 @@ def createEpicChildren(targetEpic, allEpics):
 def printEpics(epics, indent):
 	indentSpaces = " " * (indent * 3)
 	for epic in epics:
-		print "%sEpic #%d %s" % (indentSpaces, epic['number'], epic['summary'])	
+		print "%sEpic #%d %s" % (indentSpaces, epic['number'], epic['summary'])
 		printEpics(epic['children'], indent + 1)
 
 def read_epics_example(api):
@@ -131,7 +131,7 @@ def read_epics_example(api):
 	rootEpics = [epic for epic in epics if epic['parent_id'] is None]
 
 	# Now, fill in the child relationships
-	rootEpics = [ createEpicChildren(epic, epics) for epic in rootEpics]	
+	rootEpics = [ createEpicChildren(epic, epics) for epic in rootEpics]
 
 	printEpics(rootEpics, 0)
 
@@ -145,7 +145,7 @@ def read_examples(api):
 	for organization in organization_list:
 
 		# Print out the name & slug of each organization (Fore.GREEN colors it...)
-		print Fore.GREEN + "%s\t%s" % (organization["name"], organization["slug"])		
+		print Fore.GREEN + "%s\t%s" % (organization["name"], organization["slug"])
 
 		# Get all of our projects in that organization and loop through them
 		project_list = api.organizations(organization["slug"]).projects.get()
@@ -181,9 +181,9 @@ def read_examples(api):
 
 # Since we're iterating over your entire account in this example, there could be a lot of API calls.
 # This function is a dumb way to make sure we don't go over the throttle limit.
-def check_throttle(requests):	
+def check_throttle(requests):
 	requests += 1
-	if requests >= 149: 
+	if requests >= 149:
 		sleep(5) # Add in a delay when we get close the our max # of requests per 5 seconds.
 		return 0
 	return requests

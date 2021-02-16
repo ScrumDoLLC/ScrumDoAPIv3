@@ -40,7 +40,7 @@ class ScrumDoImport:
 
         self.api_iteration = None
 
-        base_url = "%s/api/v3/" % scrumdo_host
+        base_url = "%s/openapi/v3/" % scrumdo_host
 
         # On my local dev-server, keep alive doesn't work
         session = requests.session()

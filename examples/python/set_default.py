@@ -14,7 +14,7 @@ DEFAULT_VALUES = {
 
 def main():
 	init()
-	base_url = "%s/api/v3/" % settings.scrumdo_host
+	base_url = "%s/openapi/v3/" % settings.scrumdo_host
 	api = slumber.API(base_url, auth=(settings.scrumdo_username, settings.scrumdo_password))
 	set_defaults(api)
 

@@ -9,7 +9,7 @@ using System.IO;
 
 /*
   Sample C# app to move a card on the board.
-  
+
   To use it, you'll need to modify it for your organization, project, story, cell id, username and password.
 */
 
@@ -17,13 +17,13 @@ namespace APITest
 {
     class Program
     {
-        private const string URL = "https://app.scrumdo.com/api/v3/organizations/demotest/projects/xxx2/stories/125344";
+        private const string URL = "https://app.scrumdo.com/openapi/v3/organizations/demotest/projects/xxx2/stories/125344";
         private const string user = "username";
         private const string pass = "password";
 
         static void Main(string[] args)
         {
-            String DATA = @"{""cell_id"":41033}";            
+            String DATA = @"{""cell_id"":41033}";
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
             byte[] cred = UTF8Encoding.UTF8.GetBytes(user + ":" + pass);
             string base64 = Convert.ToBase64String(cred);
@@ -56,7 +56,7 @@ namespace APITest
             {
                 Console.WriteLine("-----------------");
                 Console.WriteLine(e.Message);
-                
+
             }
         }
     }

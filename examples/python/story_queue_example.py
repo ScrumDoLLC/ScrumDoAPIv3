@@ -6,7 +6,7 @@ import local_settings as settings
 import json
 
 def main():
-    base_url = "%s/api/v3/" % settings.scrumdo_host
+    base_url = "%s/openapi/v3/" % settings.scrumdo_host
     api = slumber.API(base_url, auth=(settings.scrumdo_username, settings.scrumdo_password))
     story_queue_example(api)
 
